@@ -1,0 +1,117 @@
+<style>
+    .todo-checked {
+        text-decoration: line-through;
+    }
+</style>
+
+
+<html>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+<head> 
+
+</head>
+
+<body>
+    <p class="text-center" style="font-size: 100px ;background-color: orangered; color: white; font-weight: bold;">TODO
+    </p>
+    <div class="text-center">
+        <h2 id="title">This is the Sub Heading</h2>
+        <input type="text" id="todo-input" style="height: 35px;" /> <button onclick="addTodo()" type="button"
+            class="btn btn-danger" id="todo-btn">Add Todo</button>
+        <div style="text-align: start; margin-left: 500px ;">
+            <ul id="todos">
+                <ul>Some data</ul>
+            </ul>
+        </div>
+
+    </div>
+
+
+
+
+    <script>
+        fetch("/api/todos/").then(function (res) {
+            res.text().then(function (data) {
+                var todo_data = JSON.parse(data);
+                console.log(todo_data);
+                document.getElementById("title").innerHTML = todo_data.name;
+
+                var todos_div = document.getElementById("todos");
+                todos_div.innerHTML = "";
+
+                var item_list = todo_data.data;
+                for (var i = 0; i < item_list.length; i++) {
+
+                    var liElement = document.createElement("ul");
+
+                    var checkboxElement = document.createElement("input");
+                    checkboxElement.type = "checkbox";
+                    checkboxElement.onclick = onChecked;
+                    checkboxElement.checked = item_list[i].checked;
+                    if (item_list[i].checked) {
+                        liElement.classList.add('todo-checked');
+                    }
+
+                    liElement.appendChild(checkboxElement);
+
+                    var titleElement = document.createElement("span");
+                    titleElement.innerHTML = item_list[i].title;
+
+                    liElement.appendChild(titleElement);
+
+                    todos_div.appendChild(liElement);
+
+
+
+
+                }
+            })
+        })
+
+        function addTodo() {
+            var data = document.getElementById("todo-input").value;
+
+            fetch("api/todos/add?todoName=" + data).then(function () {
+                var todos_div = document.getElementById("todos");
+                var liElement = document.createElement("ul");
+
+                var checkboxElement = document.createElement("input");
+                checkboxElement.type = "checkbox";
+                checkboxElement.onclick = onChecked;
+                checkboxElement.checked = false;
+                if (checkboxElement.checked) {
+                    liElement.classList.add('todo-checked');
+                }
+
+                liElement.appendChild(checkboxElement);
+
+                var titleElement = document.createElement("span");
+                titleElement.innerHTML = data;
+
+                liElement.appendChild(titleElement);
+
+                todos_div.appendChild(liElement);
+
+            })
+
+
+
+        }
+
+        function onChecked() {
+            if (this.checked) {
+                this.parentElement.classList.add("todo-checked");
+
+                console.log("Checked");
+
+            } else {
+                this.parentElement.classList.remove("todo-checked");
+                console.log("Not Checked");
+            }
+        }
+    </script>
+</body>
+
+</html>
