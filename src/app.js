@@ -4,11 +4,11 @@ const fs = require("fs");
 
 
 app.get('/', function (req, res) {
-    fs.readFile("index.html", function (err, data) { res.send(data.toString()) })
+    fs.readFile("src/index.html", function (err, data) { res.send(data.toString()) })
 })
 
 app.get('/api/todos',function(req, res){
-    fs.readFile("todos.json", function(err,data){
+    fs.readFile("src/todos.json", function(err,data){
         res.send(data.toString());
     })
 })
