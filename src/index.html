@@ -18,32 +18,52 @@
         <input type="text" id="todo-input" style="height: 35px;" name="addTask" /> <button onclick="addTodo()"
             type="button" class="btn btn-danger" id="todo-btn">Add Todo</button>
         <div style="text-align: start; padding-left: 400px; padding-right: 400px; ">
-            <ul id="todos" >
+            <ul id="todos">
                 <ul>Some data</ul>
             </ul>
         </div>
     </div>
     <script>
+
+        // Reading the past added element
         fetch("/todo", {
             method: "get"
         }).then(res => res.json()).then(function (data) {
             var todo_data = data;
-            console.log(todo_data);
-            document.getElementById("title").innerHTML = "TODO_LIST";
+            document.getElementById("title").innerHTML = "";
             var todos_div = document.getElementById("todos");
-            todos_div.style.marginTop="50px";
+            todos_div.style.marginTop = "50px";
             todos_div.innerHTML = "";
             var item_list = todo_data;
             for (var i = 0; i < item_list.length; i++) {
                 var liElement = document.createElement("ul");
                 var checkboxElement = document.createElement("input");
                 var span = document.createElement("span");
-                span.innerHTML="&nbsp";
+                span.innerHTML = "&nbsp";
                 checkboxElement.type = "checkbox";
-                checkboxElement.onclick = onChecked;
-                checkboxElement.checked = item_list[i].checked;
-                if (item_list[i].checked) {
-                    liElement.classList.add('todo-checked');
+                checkboxElement.checked = item_list[i].checked
+                if (checkboxElement.checked) {
+                    console.log(titleElement);
+                    
+                }
+                checkboxElement.id = item_list[i]._id;
+                checkboxElement.onclick = (event) => {
+                    if (event.target.checked) {
+                        console.log(event.target.parentElement);
+                        var id = event.target.parentElement.childNodes[0].id;
+                        var newval = event.target.checked
+
+                        event.target.parentElement.childNodes[1].classList.add("todo-checked")
+                        fetch(`checked/?updatedval=${newval}&id=${id}`).then((data) => console.log(data));
+                    }
+                    else {
+                        console.log(event.target.parentElement);
+                        var id = event.target.parentElement.childNodes[0].id;
+                        var newval = event.target.checked
+
+                        event.target.parentElement.childNodes[1].classList.remove("todo-checked")
+                        fetch(`checked/?updatedval=${newval}&id=${id}`).then((data) => console.log(data));
+                    }
                 }
                 liElement.appendChild(checkboxElement);
                 liElement.appendChild(span);
@@ -53,19 +73,55 @@
                 titleElement.style.display = "inline-block"
                 var titleEditButton = document.createElement("button");
                 var line = document.createElement("hr");
-                titleEditButton.type="button";
-                titleEditButton.setAttribute("class","btn btn-success")
-                titleEditButton.innerHTML="Edit";
-                titleEditButton.setAttribute=("onclick","editButtonPressed()");
+                titleEditButton.type = "button";
+                titleEditButton.setAttribute("class", "btn btn-success")
+                titleEditButton.innerHTML = "Edit";
+                titleEditButton.id = item_list[i]._id;
+                titleEditButton.onclick = (event) => {
+                    console.log(event.target.parentElement);
+
+                    var divInputBox = document.createElement("div");
+                    divInputBox.style.display = "inline-block"
+                    divInputBox.style.width = "300px";
+                    var span = document.createElement("span");
+                    span.innerHTML = "&nbsp &nbsp "
+                    var inputBox = document.createElement("input")
+                    inputBox.type = "text"
+                    divInputBox.appendChild(span)
+                    divInputBox.appendChild(inputBox);
+                    event.target.parentElement.insertBefore(divInputBox, event.target.parentElement.childNodes[2]);
+                    event.target.parentElement.childNodes[3].innerHTML = "Save"
+                    event.target.parentElement.childNodes[3].onclick = (event) => {
+
+                        var newval = event.target.parentElement.childNodes[2].childNodes[1].value
+                        console.log(newval);
+                        var id = event.target.id;
+                        console.log(id);
+                        alert("Updated , Refresh to see the new list");
+                        fetch(`update/?updatedval=${newval}&id=${id}`).then((data) => console.log(data));
+                    }
+
+
+                }
 
                 var titleDeleteButton = document.createElement("button");
-               
-                titleDeleteButton.type="button";
-                titleDeleteButton.setAttribute("class","btn btn-dark")
-                titleDeleteButton.innerHTML="Delete";
+                titleDeleteButton.onclick = (event) => {
+                    var id = event.target.parentElement.childNodes[2].id
+                    console.log(id);
+                    alert("Task Deleted , Refresh to see the new list");
+                    fetch(`/delete/?id=${id}`)
 
-                
-                
+
+
+
+                }
+
+                titleDeleteButton.type = "button";
+                titleDeleteButton.setAttribute("class", "btn btn-dark")
+                titleDeleteButton.innerHTML = "Delete";
+
+
+
                 liElement.appendChild(titleElement);
                 liElement.appendChild(titleEditButton);
                 liElement.appendChild(span);
@@ -74,8 +130,10 @@
                 todos_div.appendChild(liElement);
             }
         }
-            //console.log("The data is " , data)
         )
+
+
+        //Adding new element
         function addTodo() {
             var task = document.getElementById("todo-input").value;
             document.getElementById("todo-input").value = ""
@@ -83,85 +141,99 @@
                 "task": task,
                 "checked": false
             }
-            //console.log(data_send)
             fetch("/todo", {
                 method: "post",
                 body: JSON.stringify(data_send),
                 headers: { 'Content-type': 'application/json' }
-            })
-
-
-            fetch("/todo", {
-                method: "get"
             }).then(res => res.json()).then(function (data) {
-                var todo_data = data;
+                var todo_data = data.ops[0];
                 console.log(todo_data);
                 var todos_div = document.getElementById("todos");
-                todos_div.innerHTML = "";
-                var item_list = todo_data;
-                for (var i = 0; i < item_list.length; i++) {
-                    var liElement = document.createElement("ul");
+                var liElement = document.createElement("ul");
                 var checkboxElement = document.createElement("input");
                 var span = document.createElement("span");
-                span.innerHTML="&nbsp";
-                checkboxElement.type = "checkbox";
-                checkboxElement.onclick = onChecked;
-                checkboxElement.checked = item_list[i].checked;
-                if (item_list[i].checked) {
-                    liElement.classList.add('todo-checked');
+                span.innerHTML = "&nbsp";
+                checkboxElement.type = "checkbox"
+                checkboxElement.onclick = () => {
+                    // if (item_list[i].checked == false) {
+                    //     liElement.classList.remove('todo-checked');
+                    // } else {
+                    //     console.log(item_list[i]._id);
+                    // }
                 }
                 liElement.appendChild(checkboxElement);
                 liElement.appendChild(span);
                 var titleElement = document.createElement("span");
-                titleElement.innerHTML = item_list[i].task;
+                titleElement.innerHTML = todo_data.task;
                 titleElement.style.width = "300px"
                 titleElement.style.display = "inline-block"
                 var titleEditButton = document.createElement("button");
                 var line = document.createElement("hr");
-                titleEditButton.type="button";
-                titleEditButton.setAttribute("class","btn btn-success")
-                titleEditButton.innerHTML="Edit";
-                titleEditButton.setAttribute=("onclick","editButtonPressed()");
+                titleEditButton.type = "button";
+                titleEditButton.setAttribute("class", "btn btn-success")
+                titleEditButton.innerHTML = "Edit";
+                titleEditButton.id = todo_data._id;
+                console.log(titleEditButton.id);
+
+                titleEditButton.onclick = (event) => {
+                    console.log(event.target.parentElement);
+
+                    var divInputBox = document.createElement("div");
+                    divInputBox.style.display = "inline-block"
+                    divInputBox.style.width = "300px";
+                    var span = document.createElement("span");
+                    span.innerHTML = "&nbsp &nbsp "
+                    var inputBox = document.createElement("input")
+                    inputBox.type = "text"
+                    divInputBox.appendChild(span)
+                    divInputBox.appendChild(inputBox);
+                    event.target.parentElement.insertBefore(divInputBox, event.target.parentElement.childNodes[2]);
+                    event.target.parentElement.childNodes[3].innerHTML = "Save"
+                    event.target.parentElement.childNodes[3].onclick = (event) => {
+
+                        var newval = event.target.parentElement.childNodes[2].childNodes[1].value
+                        console.log(newval);
+                        var id = event.target.id;
+                        console.log(id);
+                        alert("Updated , Refresh to see the new list");
+                        fetch(`update/?updatedval=${newval}&id=${id}`).then((data) => console.log(data));
+                    }
+                }
+
 
                 var titleDeleteButton = document.createElement("button");
-               
-                titleDeleteButton.type="button";
-                titleDeleteButton.setAttribute("class","btn btn-dark")
-                titleDeleteButton.innerHTML="Delete";
+                titleDeleteButton.onclick = (event) => {
+                    var id = event.target.parentElement.childNodes[2].id
+                    console.log(id);
+                    alert("Task Deleted , Refresh to see the new list");
+                    fetch(`/delete/?id=${id}`)
 
-                
-                
+
+
+
+                }
+
+                titleDeleteButton.type = "button";
+                titleDeleteButton.setAttribute("class", "btn btn-dark")
+                titleDeleteButton.innerHTML = "Delete";
+
+
+
                 liElement.appendChild(titleElement);
                 liElement.appendChild(titleEditButton);
                 liElement.appendChild(span);
                 liElement.appendChild(titleDeleteButton);
                 liElement.appendChild(line);
                 todos_div.appendChild(liElement);
-                }
+
             }
-                //console.log("The data is " , data)
+
             )
-            // .then(res => {
-            //     return res.json();
-            //     console.log("good")
-            // }).then(function (data) {
-            //         console.log(data);
-            //         var todos_div = document.getElementById("todos");
-            //         var liElement = document.createElement("ul");
-            //         var checkboxElement = document.createElement("input");
-            //         checkboxElement.type = "checkbox";
-            //         checkboxElement.onclick = onChecked;
-            //         checkboxElement.checked = false;
-            //         if (checkboxElement.checked) {
-            //             liElement.classList.add('todo-checked');
-            //         }
-            //         liElement.appendChild(checkboxElement);
-            //         var titleElement = document.createElement("span");
-            //         titleElement.innerHTML = task;
-            //         liElement.appendChild(titleElement);
-            //         todos_div.appendChild(liElement);
-            //     })
         }
+
+
+
+
         function onChecked() {
             if (this.checked) {
                 this.parentElement.classList.add("todo-checked");
@@ -172,9 +244,7 @@
             }
         }
 
-        function editButtonPressed(){
-            console.log("Button Pressed");
-        }
+
     </script>
 </body>
 
