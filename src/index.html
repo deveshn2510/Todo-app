@@ -42,10 +42,6 @@
                 span.innerHTML = "&nbsp";
                 checkboxElement.type = "checkbox";
                 checkboxElement.checked = item_list[i].checked
-                if (checkboxElement.checked) {
-                    console.log(titleElement);
-                    
-                }
                 checkboxElement.id = item_list[i]._id;
                 checkboxElement.onclick = (event) => {
                     if (event.target.checked) {
@@ -71,6 +67,16 @@
                 titleElement.innerHTML = item_list[i].task;
                 titleElement.style.width = "300px"
                 titleElement.style.display = "inline-block"
+                if (checkboxElement.checked) {
+                    console.log(checkboxElement.checked);
+                    
+                titleElement.classList.add("todo-checked")
+                }
+                else{
+                    console.log(checkboxElement.checked);
+                    titleElement.classList.remove("todo-checked")
+                }
+                
                 var titleEditButton = document.createElement("button");
                 var line = document.createElement("hr");
                 titleEditButton.type = "button";
@@ -154,12 +160,24 @@
                 var span = document.createElement("span");
                 span.innerHTML = "&nbsp";
                 checkboxElement.type = "checkbox"
-                checkboxElement.onclick = () => {
-                    // if (item_list[i].checked == false) {
-                    //     liElement.classList.remove('todo-checked');
-                    // } else {
-                    //     console.log(item_list[i]._id);
-                    // }
+                checkboxElement.id=todo_data._id;
+                checkboxElement.onclick = (event) => {
+                    if (event.target.checked) {
+                        console.log(event.target.parentElement);
+                        var id = event.target.parentElement.childNodes[0].id;
+                        var newval = event.target.checked
+
+                        event.target.parentElement.childNodes[1].classList.add("todo-checked")
+                        fetch(`checked/?updatedval=${newval}&id=${id}`).then((data) => console.log(data));
+                    }
+                    else {
+                        console.log(event.target.parentElement);
+                        var id = event.target.parentElement.childNodes[0].id;
+                        var newval = event.target.checked
+
+                        event.target.parentElement.childNodes[1].classList.remove("todo-checked")
+                        fetch(`checked/?updatedval=${newval}&id=${id}`).then((data) => console.log(data));
+                    }
                 }
                 liElement.appendChild(checkboxElement);
                 liElement.appendChild(span);
@@ -167,6 +185,16 @@
                 titleElement.innerHTML = todo_data.task;
                 titleElement.style.width = "300px"
                 titleElement.style.display = "inline-block"
+                if (checkboxElement.checked) {
+                    console.log(checkboxElement.checked);
+                    
+                titleElement.classList.add("todo-checked")
+                }
+                else{
+                    console.log(checkboxElement.checked);
+                    titleElement.classList.remove("todo-checked")
+                }
+                
                 var titleEditButton = document.createElement("button");
                 var line = document.createElement("hr");
                 titleEditButton.type = "button";

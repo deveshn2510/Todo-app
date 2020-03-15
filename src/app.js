@@ -35,9 +35,11 @@ mongoClient.connect(connectionUrl, { useNewUrlParser: true }, { useUnifiedTopolo
     //Update
     app.get("/update", function (req, res) {
         var val = req.query.updatedval;
+        
         console.log(req.query);
 
         var id = req.query.id
+
 
         db.collection("user").updateOne({ "_id": ObjectId(id) }, { $set: { "task": val } }, function (err, res) {
             if (err)
@@ -55,10 +57,10 @@ mongoClient.connect(connectionUrl, { useNewUrlParser: true }, { useUnifiedTopolo
     app.get("/checked", function (req, res) {
         var val = req.query.updatedval;
         console.log(req.query);
-
+        var boolVal= JSON.parse(val);
         var id = req.query.id
 
-        db.collection("user").updateOne({ "_id": ObjectId(id) }, { $set: { "checked": val } }, function (err, res) {
+        db.collection("user").updateOne({ "_id": ObjectId(id) }, { $set: { "checked": boolVal } }, function (err, res) {
             if (err)
                 console.log(err)
             else
